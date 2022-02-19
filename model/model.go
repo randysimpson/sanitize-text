@@ -25,6 +25,7 @@ import (
   "strings"
   "regexp"
   "fmt"
+  "sort"
 )
 
 func SanitizeText(data string) (string, error) {
@@ -80,15 +81,28 @@ func SanitizeLog(data string) (string, error) {
   s = strings.ToLower(s)
   
   //unique string for each line.
-  set := make(map[string]struct{})
+  set := make(map[string]int)
   
   lines := strings.Split(s, "\n")
-	for _, line := range lines {
-    set[line] = struct{}{}
+	for i, line := range lines {
+    lineOfText := strings.TrimSpace(line)
+    if len(lineOfText) > 0 {
+      _, exists := set[lineOfText]
+      if !exists {
+        set[lineOfText] = i
+      }
+    }
 	}
-  
+
+  //ensure the output is in order (less the duplicates)
+  keys := make([]string, 0, len(set))
+  for key := range set {
+    keys = append(keys, key)
+  }
+  sort.Slice(keys, func(i, j int) bool { return set[keys[i]] < set[keys[j]] })
+
   s = ""
-  for key := range(set) {
+  for _, key := range keys {
     s += fmt.Sprintf("<line> %s </line> ", key)
   }
 
