@@ -63,6 +63,10 @@ func SanitizeLog(data string) (string, error) {
   //find numbers except for within text or the file locations.
   re = regexp.MustCompile(`[ [+]\d+[.]*\d+[\]ms]*`)
   s = re.ReplaceAllString(s, " <number> ")
+
+  //find \r and replace them
+  re = regexp.MustCompile(`[\r\n]`)
+  s = re.ReplaceAllString(s, "\n")
   
   //special characters.
   replacer := strings.NewReplacer(",", " ", ".", " ", ";", " ", ":", " ", "(", " ", ")", " ", "[", " ", "]", " ", "*", " ", "+", " ", "\"", " ", "=", " ")
@@ -86,6 +90,11 @@ func SanitizeLog(data string) (string, error) {
   s = ""
   for key := range(set) {
     s += fmt.Sprintf("<line> %s </line> ", key)
+  }
+
+  //remove the last space
+  if len(s) > 0 {
+    s = s[:len(s) - 1]
   }
   
   return s, nil

@@ -2,6 +2,24 @@
 
 This application was created to sanitize text from a log file, by removing specific dates and other numbers that will affect a NLP application.  Currently the only supported sanitize method is for golang log files using the format that kubernetes components use, i.e. kubelet, kube scheduler, etc.
 
+## Run
+
+To run the container issue:
+
+```
+docker run -d -p 8080:8080 randysimpson/sanitize-text:latest
+```
+
+## Use
+
+This program has various endpoints to utilize the sanitize text functions:
+
+* `/upload/log` - used to upload a file to the service
+* `/load/log` - used to send the data as text inside a body of a request
+* `/load/text` - used to send text inside a body of a request
+
+Currently the same sanitize function is used for all methods of sanitizing text.
+
 ## Upload
 
 ### k8's log file
