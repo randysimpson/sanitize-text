@@ -32,6 +32,18 @@ import (
     "strings"
     "bytes"
 )
+
+type SanitizedText struct {
+	Data string		`json:"data"`
+	Size int 	    `json:"size"`
+	Status string `json:"status"`
+}
+
+type SanitizedTextArray struct {
+  Lines []string `json:"lines"`
+  Size int 	    `json:"size"`
+	Status string `json:"status"`
+}
  
 func Index(w http.ResponseWriter, r *http.Request) {
   fmt.Fprintln(w, "Welcome!")
@@ -53,16 +65,17 @@ func LoadText(w http.ResponseWriter, r *http.Request) {
   }
 
   w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-  w.WriteHeader(http.StatusCreated)
+  w.WriteHeader(http.StatusOK)
   
-  t := map[string]interface{}{
-    "status": "Success",
-    "size": fmt.Sprintf("%d", len(data)),
-    "data": data,
+  response := SanitizedText{data, len(data), "Success"}
+
+  jsonResponse, err := json.Marshal(response)
+  if err != nil {
+    klog.Errorf("error: %+v", err)
+    return
   }
-  if err := json.NewEncoder(w).Encode(t); err != nil {
-    klog.Errorln(err)
-  }
+
+  w.Write(jsonResponse)
 }
 
 func LoadLogs(w http.ResponseWriter, r *http.Request) {
@@ -81,16 +94,17 @@ func LoadLogs(w http.ResponseWriter, r *http.Request) {
   }
 
   w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-  w.WriteHeader(http.StatusCreated)
+  w.WriteHeader(http.StatusOK)
   
-  t := map[string]interface{}{
-    "status": "Success",
-    "size": fmt.Sprintf("%d", len(data)),
-    "data": data,
+  response := SanitizedText{data, len(data), "Success"}
+
+  jsonResponse, err := json.Marshal(response)
+  if err != nil {
+    klog.Errorf("error: %+v", err)
+    return
   }
-  if err := json.NewEncoder(w).Encode(t); err != nil {
-    klog.Errorln(err)
-  }
+
+  w.Write(jsonResponse)
 }
 
 func UploadLogs(w http.ResponseWriter, r *http.Request) {
@@ -119,13 +133,29 @@ func UploadLogs(w http.ResponseWriter, r *http.Request) {
   buf.Reset()
   
   w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-  w.WriteHeader(http.StatusCreated)
-  t := map[string]interface{}{
-    "status": "Success",
-    "size": fmt.Sprintf("%d", len(data)),
-    "data": data,
-  }
-  if err := json.NewEncoder(w).Encode(t); err != nil {
-    klog.Errorln(err)
+  w.WriteHeader(http.StatusOK)
+
+  keys, ok := r.URL.Query()["lines"]
+  
+  if !ok || len(keys[0]) < 1 || keys[0] != "true" {
+    response := SanitizedText{data, len(data), "Success"}
+
+    jsonResponse, err := json.Marshal(response)
+    if err != nil {
+      klog.Errorf("error: %+v", err)
+      return
+    }
+
+    w.Write(jsonResponse)
+  } else {
+    response := SanitizedTextArray{model.SpliceLines(data), len(data), "Success"}
+
+    jsonResponse, err := json.Marshal(response)
+    if err != nil {
+      klog.Errorf("error: %+v", err)
+      return
+    }
+
+    w.Write(jsonResponse)
   }
 }

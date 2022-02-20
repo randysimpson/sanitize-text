@@ -65,13 +65,30 @@ func SanitizeLog(data string) (string, error) {
   re = regexp.MustCompile(`[ [+]\d+[.]*\d+[\]ms]*`)
   s = re.ReplaceAllString(s, " <number> ")
 
+  re = regexp.MustCompile(`[\t]`)
+  s = re.ReplaceAllString(s, " <tab> ")
+
+  re = regexp.MustCompile(`[,]`)
+  s = re.ReplaceAllString(s, " <comma> ")
+
+  re = regexp.MustCompile(`[.] +`)
+  s = re.ReplaceAllString(s, " <period> ")
+
+  re = regexp.MustCompile(`[;]`)
+  s = re.ReplaceAllString(s, " <semicolin> ")
+
+  re = regexp.MustCompile(`["]`)
+  s = re.ReplaceAllString(s, " <doublequote> ")
+
+  re = regexp.MustCompile(`[(]`)
+  s = re.ReplaceAllString(s, " <parenthesis> ")
+
+  re = regexp.MustCompile(`[)]`)
+  s = re.ReplaceAllString(s, " </parenthesis> ")
+
   //find \r and replace them
   re = regexp.MustCompile(`[\r\n]`)
   s = re.ReplaceAllString(s, "\n")
-  
-  //special characters.
-  replacer := strings.NewReplacer(",", " ", ".", " ", ";", " ", ":", " ", "(", " ", ")", " ", "[", " ", "]", " ", "*", " ", "+", " ", "\"", " ", "=", " ")
-	s = replacer.Replace(s)
   
   //double spaces or more into single space.
   re = regexp.MustCompile(` {2,}`)
@@ -112,4 +129,11 @@ func SanitizeLog(data string) (string, error) {
   }
   
   return s, nil
+}
+
+func SpliceLines(data string) []string {
+  replacer := strings.NewReplacer("</line> <line>", "</line>\n<line>")
+	s := replacer.Replace(data)
+
+  return strings.Split(s, "\n")
 }
