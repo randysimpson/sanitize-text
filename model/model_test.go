@@ -4,12 +4,25 @@ import (
 	"testing"
 )
 
+func TestSanitizeLogUnique(t *testing.T) {
+	testData := `Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+of this software and associated documentation files (the "Software"), to deal`
+	want := `<line> permission is hereby granted <comma> free of charge <comma> to any person obtaining a copy </line> <line> of this software and associated documentation files <parenthesis> the <doublequote> software <doublequote> </parenthesis> <comma> to deal </line> <line> in the software without restriction <comma> including without limitation the rights </line>`
+	result, err := SanitizeLog(testData, true)
+	if want != result || err != nil {
+		t.Fatalf(`SanitizeLog(...) = %q, %v, want match for %#q, nil`, result, err, want)
+	}
+}
+
 func TestSanitizeLog(t *testing.T) {
 	testData := `Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights`
-	want := `<line> permission is hereby granted <comma> free of charge <comma> to any person obtaining a copy </line> <line> of this software and associated documentation files <parenthesis> the <doublequote> software <doublequote> </parenthesis> <comma> to deal </line> <line> in the software without restriction <comma> including without limitation the rights </line>`
-	result, err := SanitizeLog(testData)
+in the Software without restriction, including without limitation the rights
+of this software and associated documentation files (the "Software"), to deal`
+	want := `<line> permission is hereby granted <comma> free of charge <comma> to any person obtaining a copy </line> <line> of this software and associated documentation files <parenthesis> the <doublequote> software <doublequote> </parenthesis> <comma> to deal </line> <line> in the software without restriction <comma> including without limitation the rights </line> <line> of this software and associated documentation files <parenthesis> the <doublequote> software <doublequote> </parenthesis> <comma> to deal </line>`
+	result, err := SanitizeLog(testData, false)
 	if want != result || err != nil {
 		t.Fatalf(`SanitizeLog(...) = %q, %v, want match for %#q, nil`, result, err, want)
 	}

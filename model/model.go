@@ -42,7 +42,7 @@ func SanitizeText(data string) (string, error) {
   return s, nil
 }
 
-func SanitizeLog(data string) (string, error) {
+func SanitizeLog(data string, unique bool) (string, error) {
 	//replacer := strings.NewReplacer(",", " <comma> ", ".", " </s> ", ";", " <colon> ")
   //replacer := strings.NewReplacer("\n", " </line> ")
   s := data
@@ -101,26 +101,33 @@ func SanitizeLog(data string) (string, error) {
   set := make(map[string]int)
   
   lines := strings.Split(s, "\n")
+
+  s = ""
 	for i, line := range lines {
     lineOfText := strings.TrimSpace(line)
     if len(lineOfText) > 0 {
-      _, exists := set[lineOfText]
-      if !exists {
-        set[lineOfText] = i
+      if unique {
+        _, exists := set[lineOfText]
+        if !exists {
+          set[lineOfText] = i
+        }
+      } else {
+        s += fmt.Sprintf("<line> %s </line> ", lineOfText)
       }
     }
 	}
 
-  //ensure the output is in order (less the duplicates)
-  keys := make([]string, 0, len(set))
-  for key := range set {
-    keys = append(keys, key)
-  }
-  sort.Slice(keys, func(i, j int) bool { return set[keys[i]] < set[keys[j]] })
+  if unique {
+    //ensure the output is in order (less the duplicates)
+    keys := make([]string, 0, len(set))
+    for key := range set {
+      keys = append(keys, key)
+    }
+    sort.Slice(keys, func(i, j int) bool { return set[keys[i]] < set[keys[j]] })
 
-  s = ""
-  for _, key := range keys {
-    s += fmt.Sprintf("<line> %s </line> ", key)
+    for _, key := range keys {
+      s += fmt.Sprintf("<line> %s </line> ", key)
+    }
   }
 
   //remove the last space

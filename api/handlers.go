@@ -79,6 +79,12 @@ func LoadText(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoadLogs(w http.ResponseWriter, r *http.Request) {
+  unique, ok := r.URL.Query()["unique"]
+  isUnique := true
+  if !ok || len(unique[0]) < 1 || unique[0] != "true" {
+    isUnique = false
+  }
+
   body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
   if err != nil {
     klog.Errorf("error: %+v", err)
@@ -88,7 +94,7 @@ func LoadLogs(w http.ResponseWriter, r *http.Request) {
     klog.Errorln(err)
   }
 
-  data, err := model.SanitizeLog(string(body))
+  data, err := model.SanitizeLog(string(body), isUnique)
   if err != nil {
     klog.Errorf("error: %+v", err)
   }
@@ -118,12 +124,23 @@ func UploadLogs(w http.ResponseWriter, r *http.Request) {
   defer file.Close()
   name := strings.Split(header.Filename, ".")
   klog.Infof("File name %s\n", name[0])
+
+  lines, ok := r.URL.Query()["lines"]
+  useLines := true
+  if !ok || len(lines[0]) < 1 || lines[0] != "true" {
+    useLines = false
+  }
+  unique, ok := r.URL.Query()["unique"]
+  isUnique := true
+  if !ok || len(unique[0]) < 1 || unique[0] != "true" {
+    isUnique = false
+  }
   
   // Copy the file data to my buffer
   io.Copy(&buf, file)
   
   contents := buf.String()
-  data, err := model.SanitizeLog(contents)
+  data, err := model.SanitizeLog(contents, isUnique)
   if err != nil {
     klog.Errorf("error: %+v", err)
   }
@@ -134,10 +151,8 @@ func UploadLogs(w http.ResponseWriter, r *http.Request) {
   
   w.Header().Set("Content-Type", "application/json; charset=UTF-8")
   w.WriteHeader(http.StatusOK)
-
-  keys, ok := r.URL.Query()["lines"]
   
-  if !ok || len(keys[0]) < 1 || keys[0] != "true" {
+  if !useLines {
     response := SanitizedText{data, len(data), "Success"}
 
     jsonResponse, err := json.Marshal(response)
