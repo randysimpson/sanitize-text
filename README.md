@@ -69,6 +69,41 @@ cat output2.curl | jq -r '.data' | sed -e 's/<\/line> /<\/line>\n/g' | while rea
 cat big-output2.json | jq -r '.data' | sed -e 's/<\/line> /<\/line>\n/g' | while read LINE ; do echo '{"data":"'$LINE'"}'; done | while read LINE ; do echo ''"'$LINE'"''; done | xargs -n1 curl -H "Accept: application/json" -H "Content-Type: application/json" -X POST http://localhost:8080/api/v1/entropy -d
 ```
 
+## Unit Test
+
+To run the unit tests issue the following command:
+
+```
+docker run --rm -it -v $PWD:/go/src golang:1.17 /bin/bash /go/src/test.sh
+```
+
+Example output:
+
+```
+docker run --rm -it -v $PWD:/go/src golang:1.17 /bin/bash /go/src/test.sh
+Running Unit Tests...
+go: downloading k8s.io/klog v1.0.0
+go: downloading github.com/gorilla/mux v1.8.0
+?       github.com/randysimpson/sanitize-text   [no test files]
+?       github.com/randysimpson/sanitize-text/api       [no test files]
+=== RUN   TestSanitizeLogUnique
+--- PASS: TestSanitizeLogUnique (0.00s)
+=== RUN   TestSanitizeLog
+--- PASS: TestSanitizeLog (0.00s)
+=== RUN   TestSpliceLines
+--- PASS: TestSpliceLines (0.00s)
+PASS
+ok      github.com/randysimpson/sanitize-text/model     0.004s
+```
+
+## Run from container
+
+You can run the code without building a new container by using the golang container.
+
+```
+docker run --rm -it -v $PWD:/go/src -p 8081:8081 golang:1.17 /bin/bash /go/src/run.sh
+```
+
 ## Installation
 
 This is a microservice which has been written based on REST-API to allow for deployment from a docker container.
@@ -78,9 +113,8 @@ This is a microservice which has been written based on REST-API to allow for dep
 To manually build the source files you will need to get the external dependencies and then build the binary executable file.
 
 ```
-go get k8s.io/klog
-go get github.com/gorilla/mux
-go build
+go mod tidy
+go run .
 ```
 
 # Licence

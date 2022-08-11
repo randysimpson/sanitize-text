@@ -8,5 +8,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 FROM scratch
 COPY --from=builder /usr/local/go/src/sanitize-text/main /app/
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 8081
 CMD ["./main"]
