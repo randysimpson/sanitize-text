@@ -65,8 +65,8 @@ func SanitizeLog(data string, unique bool) (string, error) {
   s = re.ReplaceAllString(s, " <time> ")
   
   //find numbers except for within text or the file locations.
-  re = regexp.MustCompile(`[ [+]\d+[.]*\d+[\]ms]*`)
-  s = re.ReplaceAllString(s, " <number> ")
+  //re = regexp.MustCompile(`[ [+]\d+[.]*\d+[\]ms]*`)
+  //s = re.ReplaceAllString(s, " <number> ")
 
   re = regexp.MustCompile(`[\t]`)
   s = re.ReplaceAllString(s, " <tab> ")
