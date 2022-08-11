@@ -25,7 +25,7 @@ import (
     "encoding/json"
     "fmt"
     "net/http"
-    "sanitize-text/model"
+    "github.com/randysimpson/sanitize-text/model"
     "io/ioutil"
     "io"
     "k8s.io/klog"

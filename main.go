@@ -23,7 +23,7 @@ package main
 
 import (
   "k8s.io/klog"
-  "sanitize-text/api"
+  "github.com/randysimpson/sanitize-text/api"
 )
 
 const (
