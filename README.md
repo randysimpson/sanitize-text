@@ -7,7 +7,7 @@ This application was created to sanitize text from a log file, by removing speci
 To run the container issue:
 
 ```
-docker run -d -p 8080:8080 randysimpson/sanitize-text:latest
+docker run -d -p 8081:8081 randysimpson/sanitize-text:latest
 ```
 
 ## Use
