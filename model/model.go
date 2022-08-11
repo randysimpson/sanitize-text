@@ -57,9 +57,12 @@ func SanitizeLog(data string, unique bool) (string, error) {
   //end of file </file> \w*.\w*:[0-9]*\] and pid
   re = regexp.MustCompile(` *(\d*) (\w*.\w*:[0-9]*)\]`)
   s = re.ReplaceAllString(s, " <pid> ${1} </pid> <file> ${2} </file> ")
-  //dates in the beginning of the line
-  re = regexp.MustCompile(`([0-9]{2}:)+[0-9]{2}.[0-9]*`)
+  //date yyyy/mm/dd
+  re = regexp.MustCompile(`[0-9]{4}/[0-9]{2}/[0-9]{2}`)
   s = re.ReplaceAllString(s, " <date> ")
+  //timestamp
+  re = regexp.MustCompile(`([0-9]{2}:)+[0-9]{2}.[0-9]*`)
+  s = re.ReplaceAllString(s, " <time> ")
   
   //find numbers except for within text or the file locations.
   re = regexp.MustCompile(`[ [+]\d+[.]*\d+[\]ms]*`)
