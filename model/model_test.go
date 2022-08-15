@@ -43,6 +43,18 @@ func TestSanitizeLogDate(t *testing.T) {
 	}
 }
 
+func TestSanitizeLogPeriod(t *testing.T) {
+	testData := `testing ... this type of line
+testing...
+Or a line of text.with a period in it
+a regular sentence ends like this.  Then a new one begins`
+	want := `<line> testing <period> <period> <period> this type of line </line> <line> testing <period> <period> <period> </line> <line> Or a line of text.with a period in it </line> <line> a regular sentence ends like this <period> Then a new one begins </line>`
+	result, err := SanitizeLog(testData, false)
+	if want != result || err != nil {
+		t.Fatalf(`SanitizeLog(...) = %q, %v, want match for %#q, nil`, result, err, want)
+	}
+}
+
 func TestSpliceLines(t *testing.T) {
 	testData := `<line> permission is hereby granted <comma> free of charge <comma> to any person obtaining a copy </line> <line> of this software and associated documentation files <parenthesis> the <doublequote> software <doublequote> </parenthesis> <comma> to deal </line> <line> in the software without restriction <comma> including without limitation the rights </line>`
 	want := []string{
