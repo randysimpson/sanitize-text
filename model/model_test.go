@@ -34,6 +34,15 @@ of this software and associated documentation files (the "Software"), to deal`
 	}
 }
 
+func TestSanitizeLogDate(t *testing.T) {
+	testData := `2022/08/11 22:10:00 text`
+	want := `<line> <date> <time> text </line>`
+	result, err := SanitizeLog(testData, false)
+	if want != result || err != nil {
+		t.Fatalf(`SanitizeLog(...) = %q, %v, want match for %#q, nil`, result, err, want)
+	}
+}
+
 func TestSpliceLines(t *testing.T) {
 	testData := `<line> permission is hereby granted <comma> free of charge <comma> to any person obtaining a copy </line> <line> of this software and associated documentation files <parenthesis> the <doublequote> software <doublequote> </parenthesis> <comma> to deal </line> <line> in the software without restriction <comma> including without limitation the rights </line>`
 	want := []string{

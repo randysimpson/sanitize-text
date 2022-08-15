@@ -42,6 +42,11 @@ func SanitizeText(data string) (string, error) {
   return s, nil
 }
 
+func ReplaceMultiplePeriod(data string) string {
+  re := regexp.MustCompile(`[.]`)
+  return re.ReplaceAllString(data, " <period> ")
+}
+
 func SanitizeLog(data string, unique bool) (string, error) {
 	//replacer := strings.NewReplacer(",", " <comma> ", ".", " </s> ", ";", " <colon> ")
   //replacer := strings.NewReplacer("\n", " </line> ")
@@ -74,8 +79,9 @@ func SanitizeLog(data string, unique bool) (string, error) {
   re = regexp.MustCompile(`[,]`)
   s = re.ReplaceAllString(s, " <comma> ")
 
-  re = regexp.MustCompile(`[.] +`)
-  s = re.ReplaceAllString(s, " <period> ")
+  re = regexp.MustCompile(`[.]$|[.]\W`)
+  s = re.ReplaceAllStringFunc(s, ReplaceMultiplePeriod)
+  //s = re.ReplaceAllString(s, " <period> ")
 
   re = regexp.MustCompile(`[;]`)
   s = re.ReplaceAllString(s, " <semicolin> ")
