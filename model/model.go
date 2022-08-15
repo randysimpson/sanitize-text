@@ -42,9 +42,12 @@ func SanitizeText(data string) (string, error) {
   return s, nil
 }
 
+func ReplaceMultiplePeriod(data string) string {
+  re := regexp.MustCompile(`[.]`)
+  return re.ReplaceAllString(data, " <period> ")
+}
+
 func SanitizeLog(data string, unique bool) (string, error) {
-	//replacer := strings.NewReplacer(",", " <comma> ", ".", " </s> ", ";", " <colon> ")
-  //replacer := strings.NewReplacer("\n", " </line> ")
   s := data
   
   re := regexp.MustCompile(`([E][0-9]{4})`)
@@ -63,10 +66,6 @@ func SanitizeLog(data string, unique bool) (string, error) {
   //timestamp
   re = regexp.MustCompile(`([0-9]{2}:)+[0-9]{2}.[0-9]*`)
   s = re.ReplaceAllString(s, " <time> ")
-  
-  //find numbers except for within text or the file locations.
-  re = regexp.MustCompile(`[ [+]\d+[.]*\d+[\]ms]*`)
-  s = re.ReplaceAllString(s, " <number> ")
 
   re = regexp.MustCompile(`[\t]`)
   s = re.ReplaceAllString(s, " <tab> ")
@@ -74,8 +73,8 @@ func SanitizeLog(data string, unique bool) (string, error) {
   re = regexp.MustCompile(`[,]`)
   s = re.ReplaceAllString(s, " <comma> ")
 
-  re = regexp.MustCompile(`[.] +`)
-  s = re.ReplaceAllString(s, " <period> ")
+  re = regexp.MustCompile(`[.]$|[.]\W`)
+  s = re.ReplaceAllStringFunc(s, ReplaceMultiplePeriod)
 
   re = regexp.MustCompile(`[;]`)
   s = re.ReplaceAllString(s, " <semicolin> ")
